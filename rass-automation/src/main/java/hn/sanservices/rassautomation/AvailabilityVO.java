@@ -5,11 +5,11 @@
  * Copying of this software or parts of this software is a violation
  * of U.S. and international laws and will be prosecuted.
  *
- * Author(s): Edwin Villanueva ( QA Computer Engineer )
+ * Author(s): Edwin Villanueva ( Computer Engineer )
  *
- * Created on Wed October 20 2:37:14 PM CST 2021
+ * Created on Wed Dec 09 2:37:14 PM CST 2020
  *
- * 10/20/2021 - Hedmon Lopez
+ * 12/09/2020 - Hedmon Lopez
  *      Initial Implementation
  */
 package hn.sanservices.rassautomation;
