@@ -1,15 +1,15 @@
 /*
- * San Services USA, 2020
+ * San Services USA, 2021
  *
  * All rights reserved.
  * Copying of this software or parts of this software is a violation
  * of U.S. and international laws and will be prosecuted.
  *
- * Author(s): Edwin Villanueva ( Computer Engineer )
+ * Author(s): Hedmon Lopez ( Qa Computer Engineer )
  *
- * Created on Wed Dec 09 2:37:14 PM CST 2021
+ * Created on Wed Oct 20 2:37:14 PM CST 2021
  *
- * 12/09/2020 - Hedmon Lopez
+ * 10/20/2021 - Hedmon Lopez
  *      Initial Implementation
  */
 package hn.sanservices.rassautomation;
