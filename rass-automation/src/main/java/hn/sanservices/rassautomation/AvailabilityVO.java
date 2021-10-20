@@ -16,7 +16,7 @@ package hn.sanservices.rassautomation;
 
 /**
  *
- * @author Edwin Villanueva
+ * @author Hedmon Lopez
  */
 public class AvailabilityVO {
 
