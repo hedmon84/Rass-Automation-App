@@ -2,6 +2,7 @@ package hn.sanservices.rassautomation;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import hn.sanservices.rassautomation.integration.LogMessage;
 import oracle.jdbc.OracleTypes;
 import oracle.jdbc.driver.OracleDriver;
 
@@ -27,9 +28,10 @@ public class Main {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
                // get availability
 //            System.out.println(gson.toJson(getFullLoad("SMB", conn)));
-
-            System.out.println(gson.toJson(getFullLoad("BBO", "USA", "2022/12/21","2022/12/28",conn)));
-
+            //rates
+            System.out.println(gson.toJson(getFullLoad("BBO", "USA", "2023/07/1","2023/07/28",conn)));
+            // promotions and Discounts
+//            System.out.println(gson.toJson(getFullLoad(InfoType.PROMOTIONS,conn)));
 
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
@@ -98,6 +100,40 @@ public class Main {
         return list;
     }
 
+    static protected List<Object> getFullLoad(InfoType infoType, Connection connection) throws SQLException {
+        List<Object> list = new ArrayList<>();
+
+        try (CallableStatement cs = connection.prepareCall(getProcedure(infoType))) {
+            cs.setQueryTimeout(60);
+            cs.registerOutParameter(1, OracleTypes.CURSOR);
+            cs.execute();
+
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                rs.setFetchDirection(ResultSet.FETCH_FORWARD);
+                rs.setFetchSize(7000);
+
+                while (rs.next()) {
+                    String[] values = rs.getString(1).split("\\|");
+                    hydrateSelector(list, values, infoType);
+                }
+            }
+        }
+
+        return list;
+    }
+
+
+    static  private String getProcedure(InfoType infoType) throws SQLException {
+        switch (infoType) {
+            case PROMOTIONS:
+                return InternalSQL.GET_PROMOTIONS;
+            case DISCOUNTS:
+                return InternalSQL.GET_DISCOUNTS;
+            default:
+                throw new SQLException(
+                        LogMessage.FLT1010.get());
+        }
+    }
 
 
 
@@ -134,8 +170,40 @@ public class Main {
         rates.setWholesalerOnly(values[18].substring(("wholesaler_only_yn=").length()));
         rates.setActive(values[19].substring(("active_yn=").length()));
     }
+    static private void hydrateSelector(List<Object> list, String[] values, InfoType infoType) throws SQLException {
+        switch (infoType) {
+            case PROMOTIONS:
+                PromotionVO promotions = new PromotionVO();
+                hydratePromotion(promotions, values);
+                list.add(promotions);
+                return;
+            case DISCOUNTS:
+                DiscountVO discounts = new DiscountVO();
+                hydrateDiscount(discounts, values);
+                list.add(discounts);
+                return;
+            default:
+                throw new SQLException(
+                        LogMessage.FLT1010.get());
+        }
+    }
 
 
+    static private void hydratePromotion(PromotionVO promotion, String[] values) {
+
+
+        promotion.setPromotionId(values[1].substring("promotion_id=".length()));
+        promotion.setName(values[2].substring("promotion_name=".length()));
+        promotion.setDescription(values[3].substring("description=".length()));
+    }
+
+    static private void hydrateDiscount(DiscountVO promotion, String[] values) {
+
+
+        promotion.setDiscountCodeId(values[1].substring("discount_code_id=".length()));
+        promotion.setDiscountCode(values[2].substring("discount_code=".length()));
+        promotion.setDescription(values[3].substring("description=".length()));
+    }
 
 
 }
