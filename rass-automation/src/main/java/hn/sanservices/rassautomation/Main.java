@@ -6,12 +6,16 @@ import hn.sanservices.rassautomation.integration.LogMessage;
 import oracle.jdbc.OracleTypes;
 import oracle.jdbc.driver.OracleDriver;
 
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 
+
 public class Main {
+
+
     public static void main(String[] args) throws SQLException {
 
         DriverManager.registerDriver(new OracleDriver());
@@ -29,8 +33,8 @@ public class Main {
                // get availability
 //            System.out.println(gson.toJson(getFullLoad("SMB", conn)));
             //rates
-            System.out.println(gson.toJson(getFullLoad("BBO", "USA", "2023/07/1","2023/07/28",conn)));
-            // promotions and Discounts
+            System.out.println(gson.toJson(getFullLoad("BBO", "USA", "2023/07/1","2023/07/2",conn)));
+//             promotions and Discounts
 //            System.out.println(gson.toJson(getFullLoad(InfoType.PROMOTIONS,conn)));
 
         } catch (SQLException e) {
@@ -74,6 +78,7 @@ public class Main {
     static protected List<RatesVO> getFullLoad(String rstCode, String rateStructure, String startDate, String endDate, Connection connection) throws SQLException {
         List<RatesVO> list = new ArrayList<>();
 
+
         try (CallableStatement cs = connection.prepareCall(
                 InternalSQL.GET_RATES)) {
             cs.setQueryTimeout(60);
@@ -89,15 +94,40 @@ public class Main {
                 rs.setFetchSize(7000);
 
                 while (rs.next()) {
-                    String[] values = rs.getString(1).split("\\|");
+
+                    String[]  values = rs.getString(1).split("\\|");
+                    values[0] = "Rate_Excluding_Disc=";
                     RatesVO rates = new RatesVO();
                     hydrateRates(rates, values);
-                    list.add(rates);
+
+                    // select getStayLength
+                    if(rates.getStayLength().equals("7")){
+                        list.add(rates);
+                   }
+
+
                 }
+
             }
         }
 
         return list;
+    }
+
+    static String Calculate_Rate_Excluding_Disc(String AdultRate,String ChildRate, String Days  ){
+
+        //calculate Rate_Excluding_Disc
+        Float adults = Float.parseFloat(AdultRate);
+        Float childrens =  Float.parseFloat(ChildRate);
+        Float days =   Float.parseFloat(Days);
+        String net_rate = Float.toString((adults + childrens)*days);
+
+
+        return  net_rate;
+
+
+
+
     }
 
     static protected List<Object> getFullLoad(InfoType infoType, Connection connection) throws SQLException {
@@ -150,6 +180,13 @@ public class Main {
 
    static  private void hydrateRates(RatesVO rates, String[] values) {
 
+//       calculate_Rate_Excluding_Disc(rates.getAdultRate(),rates.getChildRate(),rates.getStayLength());
+
+
+
+
+
+
         rates.setRateStructure(values[1].substring("rate_structure=".length()));
         rates.setResInsertSource(values[2].substring(("res_insert_source=").length()));
         rates.setResort(values[3].substring(("resort=").length()));
@@ -169,6 +206,9 @@ public class Main {
         rates.setAppliedDiscounts(values[17].substring(("applied_discounts=").length()));
         rates.setWholesalerOnly(values[18].substring(("wholesaler_only_yn=").length()));
         rates.setActive(values[19].substring(("active_yn=").length()));
+       values[0] = "Rate_Excluding_Disc=" + Calculate_Rate_Excluding_Disc(rates.getAdultRate(),rates.getChildRate(),rates.getStayLength()) ;
+       rates.setRate_Excluding_Disc(values[0].substring(("Rate_Excluding_Disc=").length()));
+
     }
     static private void hydrateSelector(List<Object> list, String[] values, InfoType infoType) throws SQLException {
         switch (infoType) {

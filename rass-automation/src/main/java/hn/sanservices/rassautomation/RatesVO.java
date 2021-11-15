@@ -20,6 +20,7 @@ package hn.sanservices.rassautomation;
  */
 public class RatesVO {
 
+
     private String rateStructure;
     private String resInsertSource;
     private String resort;
@@ -39,6 +40,8 @@ public class RatesVO {
     private String appliedDiscounts;
     private String wholesalerOnly;
     private String active;
+    private String Rate_Excluding_Disc;
+
 
     public String getRateStructure() {
         return rateStructure;
@@ -191,5 +194,11 @@ public class RatesVO {
     public void setActive(String active) {
         this.active = active;
     }
+
+    public void setRate_Excluding_Disc(String Rate_Excluding_Disc) {
+        this.Rate_Excluding_Disc = Rate_Excluding_Disc;
+    }
+
+
 
 }
