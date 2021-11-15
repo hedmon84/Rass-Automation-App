@@ -120,10 +120,8 @@ public class Main {
         Float adults = Float.parseFloat(AdultRate);
         Float childrens =  Float.parseFloat(ChildRate);
         Float days =   Float.parseFloat(Days);
-        String net_rate = Float.toString((adults + childrens)*days);
 
-
-        return  net_rate;
+        return  Float.toString((adults + childrens)*days);
 
 
 
