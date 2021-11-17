@@ -8,6 +8,7 @@ import oracle.jdbc.driver.OracleDriver;
 
 
 import java.sql.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class Main {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
                // get availability
 //            System.out.println(gson.toJson(getFullLoad("SMB", conn)));
-            //rates
+//            rates
             System.out.println(gson.toJson(getFullLoad("BBO", "USA", "2023/07/1","2023/07/2",conn)));
 //             promotions and Discounts
 //            System.out.println(gson.toJson(getFullLoad(InfoType.PROMOTIONS,conn)));
@@ -74,7 +75,7 @@ public class Main {
         return list;
     }
 
-
+//scrypt 1
     static protected List<RatesVO> getFullLoad(String rstCode, String rateStructure, String startDate, String endDate, Connection connection) throws SQLException {
         List<RatesVO> list = new ArrayList<>();
 
@@ -114,14 +115,18 @@ public class Main {
         return list;
     }
 
-    static String Calculate_Rate_Excluding_Disc(String AdultRate,String ChildRate, String Days  ){
-
+    static String Calculate_Rate_Excluding_Disc(String AdultRate,String ChildRate, String Maxadults, String Maxchildrens, String  Days  ){
+        final DecimalFormat df = new DecimalFormat("0.00");
         //calculate Rate_Excluding_Disc
-        Float adults = Float.parseFloat(AdultRate);
-        Float childrens =  Float.parseFloat(ChildRate);
-        Float days =   Float.parseFloat(Days);
+        Double adults = Double.parseDouble(AdultRate) * Double.parseDouble(Maxadults);
+        Double childrens =  Double.parseDouble(ChildRate) * Double.parseDouble(Maxchildrens);
+        Double days =   Double.parseDouble(Days);
 
-        return  Float.toString((adults + childrens)*days);
+
+        String Res = Double.toString((adults+childrens)*days);
+
+
+        return Res ;
 
 
 
@@ -204,7 +209,7 @@ public class Main {
         rates.setAppliedDiscounts(values[17].substring(("applied_discounts=").length()));
         rates.setWholesalerOnly(values[18].substring(("wholesaler_only_yn=").length()));
         rates.setActive(values[19].substring(("active_yn=").length()));
-       values[0] = "Rate_Excluding_Disc=" + Calculate_Rate_Excluding_Disc(rates.getAdultRate(),rates.getChildRate(),rates.getStayLength()) ;
+       values[0] = "Rate_Excluding_Disc=" + Calculate_Rate_Excluding_Disc(rates.getAdultRate(),rates.getChildRate(),rates.getMaxAdult(),rates.getMaxChild(),rates.getStayLength()) ;
        rates.setRate_Excluding_Disc(values[0].substring(("Rate_Excluding_Disc=").length()));
 
     }
